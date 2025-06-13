@@ -1,0 +1,162 @@
+/* MARK: Hide tabs toolbar */
+@media -moz-pref("uc.tweak.hide-tabs-bar"), -moz-pref("uc.tweak.hide-tabs-bar.no-window-controls") {
+
+  /* Only hide the tabs toolbar if one of the following sidebar extensions is
+   * active: Sidebery, Tree Style Tab, or Tab Center Reborn. */
+  :root:not([customizing]):has(#sidebar-box[sidebarcommand="_3c078156-979c-498b-8990-85f7987dd929_-sidebar-action"]:not([hidden])),
+  :root:not([customizing]):has(#sidebar-box[sidebarcommand="treestyletab_piro_sakura_ne_jp-sidebar-action"]:not([hidden])),
+  :root:not([customizing]):has(#sidebar-box[sidebarcommand="tabcenter-reborn_ariasuni-sidebar-action"]:not([hidden])) {
+    /* Height of navbar, used for determining height and position of window controls */
+    --uc-navbar-height: 38px;
+    /* Drag space next to the window controls, allows you to move the window more easily */
+    --uc-titlebar-drag-space: 40px;
+
+    /* Hide the tabs */
+    #TabsToolbar {
+      visibility: collapse !important;
+    }
+
+    /* Fix issue with missing window controls. */
+    &[customtitlebar] #titlebar,
+    &[customtitlebar] #TabsToolbar {
+      will-change: auto !important;
+    }
+
+    /* Add some padding to the top of the navbar */
+    &[customtitlebar] #nav-bar {
+      padding-top: var(--uc-tab-top-margin, 0) !important;
+    }
+
+    /* Set background colour of the menu bar to maintain consistency with the navbar */
+    @media not -moz-pref("uc.tweak.floating-tabs") {
+      #toolbar-menubar {
+        background-color: var(--toolbar-bgcolor) !important;
+        color: var(--toolbar-color) !important;
+      }
+    }
+
+    @media not -moz-pref("uc.tweak.hide-tabs-bar.no-window-controls") {
+      /* MARK: Window controls */
+
+      &:not([macOSNativeFullscreen]) #toolbar-menubar:not([autohide="false"])~#nav-bar {
+
+        .titlebar-buttonbox-container {
+          display: flex !important;
+          margin-top: calc(-1 * var(--uc-tab-top-margin, 0)) !important;
+
+          @media (-moz-platform: macos) {
+            margin-inline: 0 !important;
+
+            .titlebar-buttonbox {
+              margin-inline: calc((var(--uc-navbar-height) + var(--uc-tab-top-margin, 0px) - 14px) / 2) !important;
+            }
+          }
+        }
+
+        /* Space between window controls and navbar items. */
+        .titlebar-spacer {
+          width: max(calc(var(--uc-titlebar-drag-space, 0px) - var(--toolbar-start-end-padding, 0px)), 0px) !important;
+        }
+
+        /* Display left spacer (macOS and certain Linux configs). */
+        @media (-moz-platform: macos),
+        (-moz-gtk-csd-close-button) and (-moz-gtk-csd-reversed-placement) {
+          .titlebar-spacer[type*="pre"] {
+            display: flex !important;
+          }
+        }
+
+        /* Display right spacer (Windows and Linux). */
+        @media (-moz-platform: windows),
+        (-moz-gtk-csd-close-button) and (not (-moz-gtk-csd-reversed-placement)) {
+          .titlebar-spacer[type*="post"] {
+            display: flex !important;
+          }
+        }
+      }
+    }
+
+    /*
+  MARK: Sidebar styles
+*/
+    #sidebar-box:where([sidebarcommand="_3c078156-979c-498b-8990-85f7987dd929_-sidebar-action"]:not([hidden])),
+    #sidebar-box:where([sidebarcommand="treestyletab_piro_sakura_ne_jp-sidebar-action"]:not([hidden])),
+    #sidebar-box:where([sidebarcommand="tabcenter-reborn_ariasuni-sidebar-action"]:not([hidden])) {
+      --sidebar-background-color: var(--toolbar-bgcolor) !important;
+      --sidebar-text-color: var(--toolbar-color) !important;
+      --sidebar-border-color: var(--chrome-content-separator-color) !important;
+      position: relative !important;
+
+      /* Floating tabs tweak uses the tab toolbar background instead. */
+      @media -moz-pref("uc.tweak.floating-tabs") {
+        --sidebar-background-color: var(--lwt-accent-color) !important;
+        --sidebar-text-color: var(--lwt-text-color) !important;
+
+        &:-moz-window-inactive {
+          --sidebar-background-color: var(--lwt-accent-color-inactive) !important;
+          --sidebar-text-color: var(--lwt-text-color-inactive) !important;
+        }
+      }
+
+      #sidebar-header {
+        border-bottom: 0 !important;
+        padding: 10px 4px 0 !important;
+        overflow: hidden;
+        position: relative;
+
+        #sidebar-switcher-target,
+        #sidebar-close {
+          width: auto !important;
+          height: 28px !important;
+          padding: 0 8px !important;
+          border: none !important;
+          margin-inline: 0 !important;
+        }
+
+        #sidebar-spacer {
+          min-width: 8px !important;
+        }
+      }
+
+      /* Sidebar positioned on the left. */
+      &:not([positionend]) {
+        border-inline-end: 1px solid var(--sidebar-border-color);
+        /* Use less padding on the side with the border. */
+        padding-inline: 4px 3px;
+      }
+
+      /* Sidebar positioned on the right. */
+      &[positionend] {
+        border-inline-start: 1px solid var(--sidebar-border-color);
+        /* Use less padding on the side with the border. */
+        padding-inline: 3px 4px;
+      }
+
+      /* Rounded corners tweak optimisations. */
+      @media -moz-pref("uc.tweak.rounded-corners") {
+
+        /* Remove padding and border from sidebar. */
+        &:not([positionend]),
+        &[positionend] {
+          border-inline: none;
+          padding-inline: 0;
+        }
+
+        @media -moz-pref("uc.tweak.theme.sidebery") {
+          border-radius: 0 !important;
+          box-shadow: none !important;
+
+          &:not([positionend]) {
+            padding-inline-end: 3px;
+          }
+
+          &[positionend] {
+            padding-inline-start: 3px;
+          }
+        }
+
+        #sidebar-header {
+          padding-top: 4px !important;
+        }
+      }
+    }
